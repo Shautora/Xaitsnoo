@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>Xaitsnoo Verb Conjugator</title>
+
+	<style>
+    ts̓noo {
+          display: block;
+          color: #CC0033;
+          background-color: #FFFFFF;
+          padding: 150px;
+          font-size: 80px;
+    }  
+	  
+	body {
+		font-family:sans-serif;
+	}
+	
+	#Buttons {
+		align: left;
+		text-align: center;
+	}
+	
+	#mainContent 
+		margin: 50px;
+		align: center;
+		text-align: center;
+	}
+	
+	#legend {
+		margin: 50px;
+		margin-left:100px;
+		text-align:left;
+	}
+
+	.ck-button {
+		margin:4px;
+		border-radius:4px;
+		border:1px solid #D0D0D0;
+		overflow:auto;
+		float:left;
+	}
+
+	.ck-button label {
+		float:left;
+		width:4.0em;
+	}
+
+	.ck-button label span {
+		text-align:center;
+		padding:3px 0px;
+		display:block;
+	}
+
+	.ck-button label input {
+		position:absolute;
+		top:-20px;
+	}
+		
+	.directional {
+		background-color:#FFFFFF;
+		color:#000000;
+	}
+	
+	.directional input:checked + span {
+		background-color:#000000;
+		color:#FFFFFF;
+	}
+	
+	.modal {
+		background-color:#FFFFFF;
+		color:MediumSeaGreen;
+	}
+	
+	.modal input:checked + span {
+		background-color:MediumSeaGreen;
+		color:#FFFFFF;
+	}
+	
+	.tense {
+		background-color:#FFFFFF;
+		color:MediumSeaGreen;
+	}
+	
+	.tense input:checked + span {
+		background-color:MediumSeaGreen;
+		color:#FFFFFF;
+	}
+	
+	.aspect {
+		background-color:#FFFFFF;
+		color:DodgerBlue;
+	}
+	
+	.aspect input:checked + span {
+		background-color:DodgerBlue;
+		color:#FFFFFF;
+	}
+	
+	.instrumental {
+		background-color:#FFFFFF;
+		color:Orange;
+	}
+	
+	.instrumental input:checked + span {
+		background-color:Orange;
+		color:#FFFFFF;
+	}
+    </style>
+
+	<script>
+	
+		var verbRoot = "qwak";
+		
+		var current, CVPattern;
+		
+		var paradigm = {
+			contents: [
+				new Array(""), 		// 0:  Directionals
+				new Array(""), 		// 1:  Instrumentals
+				verbRoot,			// 2:  Verb Root
+				new Array(""), 		// 3:  Suffix Position 1
+				new Array(""), 		// 4:  Suffix Position 2
+				new Array(""), 		// 5:  Suffix Position 3
+				new Array(""), 		// 6:  Suffix Position 4
+				new Array(""), 		// 7:  Suffix Position 5
+				new Array(""), 		// 8:  Suffix Position 6
+				new Array(""), 		// 9:  Suffix Position 7
+				new Array(""), 		// 10: Suffix Position 8
+				new Array(""), 		// 11: Suffix Position 9
+				new Array(""), 		// 12: Suffix Position 10
+				new Array(""), 		// 13: Suffix Position 11
+				new Array(""), 		// 14: Suffix Position 12
+				new Array(""), 		// 15: Suffix Position 13
+				new Array(""), 		// 16: Final Suffixes - Position 14
+				new Array(""), 		// 17: Enclitics - Position 15
+				
+			],
+		
+			toggleAffix: function (affix){
+
+				if (affix.checked == true) {
+					this.contents[affix.id].push(affix.name);
+				} else {
+					this.contents[affix.id].splice(this.contents[affix.id].indexOf(affix.name),1);
+				}
+				document.getElementById('ts̓noo').innerHTML = this.refresh();
+				
+				/*
+				var debugContents="Contents:<br/>", i;
+				for (i=0; i<this.contents.length; i++){
+					debugContents += "&nbsp;&nbsp;" + i + ": (length " + this.contents[i].length;
+					debugContents += ") " + this.contents[i] + "<br/>";
+				}
+				document.getElementById('debug').innerHTML = debugContents;
+				*/
+				
+			},
+			
+			refresh: function (){
+				current = "";
+				var i, e;
+				for(i = 0; i <= 17; i++){
+					
+					if (i == 16){ 
+						current = epenthesize(current);
+						if (this.contents[i].length <= 1){
+							current += "a";
+						}else{
+							current += selectV(current.charAt(current.length-1));
+							for (e in this.contents[i]) {
+								current += this.contents[i][e];
+							}
+						}
+					}else{
+						for (e in this.contents[i]) {
+							current += this.contents[i][e];
+						}
+					}
+				}
+				return normalize(current);
+			}
+		}
+			
+		function epenthesize (stem){
+			var i;
+			for (i=stem.length-1; i>=2; i--){
+				var c1 = stem.charAt(i);
+				var c2 = stem.charAt(i-1);
+				var c3 = stem.charAt(i-2);
+				
+				if (!isV(c1) && !isV(c2) && !isV(c3) && c2 != "y" && c2 != "w"){
+					stem = stem.substring(0,i) + selectV(c2) + stem.substring(i,stem.length);
+				}
+			}
+			
+			return stem;
+		}
+		
+		function isV (letter){
+			if (letter == "a" || letter == "e" || letter == "i" || letter == "o" || letter == "u" || letter == "ə") {
+				return true;
+			} else {
+				return false;
+			}
+		}
+		
+		function selectV (cons) {
+			if (cons == "q" || cons == "m") {
+				return "a";
+			} else {
+				return "i";
+			}
+		}
+		
+		function normalize(verb){
+			var e;
+			for (e = verb.length-1; e >= 0; e--) {
+				var c = verb.charAt(e);
+				switch (c){
+					case "c": c = "ts"; break;
+					case "C": c = "ts&apos;"; break;
+					case "Q": c = "q&apos;"; break;
+					case "T": c = "t&apos;"; break;
+					case "þ": c = "th"; break;
+					case "Θ": c = "th&apos;"; break;
+					case "K": c = "k&apos;"; break;
+					case "S": c = "sh"; break;
+					case "ʔ": c = "&apos;"; break;
+				}
+				
+				if (e < verb.length-1) {
+					verb = verb.substring(0,e) + c + verb.substring(e+1,verb.length);
+				} else {
+					verb = verb.substring(0,e) + c;
+				}
+			}
+			
+			return verb;
+		}
+		
+		
+		var affixes = [ 
+			[0, "Xol", "directional", "toward me"],
+			[0, "til", "directional", "away from me"],
+			[0, "yol", "directional", "away from something"],
+			[0, "mat", "directional", "down to the ground"],
+			[0, "moy", "directional", "up from a surface"],
+			[0, "Xuy", "directional", "up to a high position"],
+			[0, "mal", "directional", "across water"],
+			[0, "dul", "directional", "across water"],
+			[0, "cal", "directional", "toward home"],
+			[0, "lil", "directional", "into an enclosed space"],
+			[0, "duy", "directional", "through an area"],
+			[1, "ʔ", "instrumental", "with the hand"],
+			[1, "c", "instrumental", "with the front end"],
+			[1, "C", "aspect", "in an instant"],
+			[1, "c", "instrumental", "with a massive object"],
+			[1, "S", "instrumental", "with a long, flexible object"],
+			[1, "f", "instrumental", "with the end/side of a long object"],
+			[1, "k", "instrumental", "by poking"],
+			[4, "qla", "directional", "downward"],
+			[5, "m", "directional", "down toward a surface"],
+			[7, "w", "aspect", "many people/things"],
+			[8, "k", "aspect", "starts to"],
+			[8, "k", "aspect", "instantaneously"],
+			[10,"C", "aspect", "one/themselves"],
+			[13,"Xoþ", "modal", "doesn't/is not"],
+			[15,"d", "tense", "will"],
+			[15,"dey", "tense", "about to"],
+			[16,"kle", "aspect", "always"],
+			[16,"dowa", "modal", "let's"],
+			[16,"s", "tense", "didn't"],
+			[16,"þ", "tense", "does"],
+			[16,"ya", "tense", "did"]
+		]
+		
+		var buttonCollection = "";
+		var e;
+		
+		for (e in affixes){
+			buttonCollection += '<div class="ck-button ' + affixes[e][2] + '"><label title="' + affixes[e][3];
+			buttonCollection += '"><input type="checkbox" id="' + affixes[e][0] + '" name="';
+			buttonCollection += affixes[e][1] + '" onclick="paradigm.toggleAffix(this);"><span>';
+			buttonCollection += normalize(affixes[e][1]) + '</span></label></div>';
+		}
+	</script>
+</head>
+
+<body>
+
+<section id="Buttons">
+	<br/><br/><br/>
+	<button style="align:center; text-size:30;" onclick="document.getElementById('Buttons').innerHTML = buttonCollection;">Start</button>
+</section>
+
+<br/>
+
+<section id="mainContent">
+	<br/>
+	<ts̓noo id="ts̓noo">qwaka</ts̓noo>
+	<br/>
+</section>
+
+<section id="legend">
+	<p><span style="color:#000000;">Black:</span>&nbsp;Directionals</p>
+	<p><span style="color:MediumSeaGreen;">Green:</span>&nbsp;Tense</p>
+	<p><span style="color:DodgerBlue;">Blue:</span>&nbsp;Aspect</p>
+	<p><span style="color:Orange;">Orange:</span>&nbsp;Instrumentals</p>
+</section>
+<!--
+<div>
+	<label>Debug Info:</label>
+	<button onclick="document.getElementById('emp').innerHTML = epenthesize('cbeqmymkt');">Test Epenthesis</button>
+	<div id="emp"></div>
+	<div id="debug"></div>
+</div>
+-->
+
+</body>
+
+</html>
